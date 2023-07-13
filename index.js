@@ -1,37 +1,42 @@
-/* 
-1. Use the inquirer npm package to get user input.
-2. Use the qr-image npm package to turn the user entered URL into a QR code image.
-3. Create a txt file to save the user input using the native fs node module.
-*/
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const path = require('path');
+const qr = require('qr-image'); 
+const fs = require('fs');
+const port = 80;
 
-import inquirer from 'inquirer';
-import qr from 'qr-image';
-import fs from 'fs';
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'pug')
 
-inquirer
-    .prompt([
-        {
-            message: "Type in your URL :",
-            name: "URL"
-        }
-    ])
-    .then((answers) => {
+app.use('/', express.static(path.join(__dirname, 'public')));
 
-        const url = answers.URL;
+app.get('/', (req, res) => {
+    res.render('index');
+})
+
+app.post('/', (req, res) => {
+    const url = req.body.Url;
+    res.render('index', { url: '/qr_img.png' });
+
+    try {
 
         var qr_svg = qr.image(url);
-        qr_svg.pipe(fs.createWriteStream('qr_img.png'));
+        qr_svg.pipe(fs.createWriteStream('./public/qr_img.png'));
 
-        fs.writeFile('./URL.txt', url, (err) => {
-            if (err) throw err;
-            console.log('QR Code is successfully generated!');
-        })
+    } catch (error) {
 
-    })
-    .catch((error) => {
         if (error.isTtyError) {
             // Prompt couldn't be rendered in the current environment
         } else {
             // Something else went wrong
         }
-    });
+
+    }
+
+})
+
+
+app.listen(port, () => {
+    console.log('http://localhost:' + port);
+})

@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const qr = require('qr-image'); 
 const fs = require('fs');
-const port = 80;
+const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'pug')
